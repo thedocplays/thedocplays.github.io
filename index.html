@@ -9,7 +9,6 @@
 
   gtag('config', 'G-MFSXNSZ11C');
 </script>
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -21,7 +20,14 @@
         
         /* HEADER */
         .header { text-align: center; margin-bottom: 30px; width: 100%; max-width: 700px; position: relative; }
-        h1 { color: var(--accent); text-transform: uppercase; letter-spacing: 3px; font-size: 2.2rem; margin: 0 0 10px 0; }
+        
+        /* UPDATED TITLE STYLES */
+        h1 { 
+            color: var(--accent); text-transform: uppercase; letter-spacing: 3px; font-size: 2.2rem; margin: 0 0 10px 0; 
+            cursor: pointer; transition: opacity 0.2s; 
+        }
+        h1:hover { opacity: 0.8; }
+        
         .subtitle { color: var(--text-secondary); font-style: italic; font-size: 0.9rem; margin-bottom: 20px; }
         
         .nav-bar { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
@@ -140,11 +146,11 @@
 
     </style>
     <script src="heritage_db.js"></script>
-</head>
+    </head>
 <body>
 
     <div class="header">
-        <h1>The Heritage Oracle</h1>
+        <h1 onclick="window.location.href = window.location.pathname" title="Reset to Home">The Heritage Oracle</h1>
         <div class="subtitle">Restoring the Canon of Commander</div>
         
         <div class="nav-bar">
@@ -158,7 +164,7 @@
     <div id="rulesModal" class="modal-overlay" onclick="closeModal(event, 'rulesModal')">
         <div class="modal-content">
             <span class="close-modal" onclick="document.getElementById('rulesModal').style.display='none'">&times;</span>
-            <h2>Heritage Protocol</h2>
+            <h2>Heritage EDH Protocol</h2>
             <p>A card is legal if it was printed in a <strong>Standard-legal set</strong> (formerly Type 2) set within the Magic Multiverse.</p>
             <ul>
                 <li><strong>Allowed:</strong> All Standard sets (Alpha to present).</li>
@@ -271,7 +277,7 @@
     </div>
 
     <div class="footer">
-        Database Version: 14.0 (Onyx Release)<br>
+        Database Version: 14.2 (Onyx Release v2)<br>
         Card data powered by <a href="https://scryfall.com" target="_blank">Scryfall</a>
     </div>
 
@@ -306,7 +312,7 @@
         let myDeck = JSON.parse(localStorage.getItem('heritageDeck')) || [];
 
         // --- INIT ---
-        updateDeckCount(); // Load saved count
+        updateDeckCount();
 
         window.onload = function() {
             const params = new URLSearchParams(window.location.search);
@@ -335,7 +341,6 @@
             saveDeck();
             updateDeckCount();
             
-            // Visual Feedback
             const originalText = addDeckBtn.innerText;
             addDeckBtn.innerText = "ADDED!";
             addDeckBtn.style.background = "#fff";
@@ -349,7 +354,7 @@
             myDeck.splice(index, 1);
             saveDeck();
             updateDeckCount();
-            renderDeckList(); // Refresh the list
+            renderDeckList(); 
         }
 
         function clearDeck() {
@@ -381,11 +386,9 @@
                 return;
             }
             
-            // Count quantities
             const counts = {};
             myDeck.forEach(name => { counts[name] = (counts[name] || 0) + 1; });
             
-            // Convert to array and sort
             const sortedNames = Object.keys(counts).sort();
 
             sortedNames.forEach(name => {
@@ -399,7 +402,6 @@
             });
         }
 
-        // Helper to remove one instance of a card by name
         window.removeByName = function(name) {
             const index = myDeck.indexOf(name);
             if (index > -1) {
@@ -568,7 +570,7 @@
             const uiMsg = document.getElementById('msgText');
             
             uiName.innerText = card.n;
-            flipBtn.innerText = "↻ FLIP CARD"; 
+            flipBtn.innerText = "↻ FLIP"; 
             scryfallBtn.href = `https://scryfall.com/search?q=!"${encodeURIComponent(card.n)}"`;
 
             if (isLegal) {
@@ -626,7 +628,7 @@
             } else {
                 uiImg.src = currentCard.i;
                 uiOracle.innerText = currentCard.o || "";
-                flipBtn.innerText = "↻ FLIP CARD";
+                flipBtn.innerText = "↻ FLIP";
             }
         }
 
@@ -738,5 +740,4 @@
         }
     </script>
 </body>
-
 </html>
