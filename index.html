@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-MFSXNSZ11C"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -14,20 +13,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#121212">
     <title>Heritage Commander Oracle</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
     <style>
         :root { --bg: #121212; --surface: #1e1e1e; --border: #333; --text-primary: #e0e0e0; --text-secondary: #a0a0a0; --accent: #d4af37; --legal: #4caf50; --illegal: #f44336; --banned: #b71c1c; }
         body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text-primary); display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
         
         /* HEADER */
         .header { text-align: center; margin-bottom: 30px; width: 100%; max-width: 700px; position: relative; }
-        
-        /* UPDATED TITLE STYLES */
-        h1 { 
-            color: var(--accent); text-transform: uppercase; letter-spacing: 3px; font-size: 2.2rem; margin: 0 0 10px 0; 
-            cursor: pointer; transition: opacity 0.2s; 
-        }
+        h1 { color: var(--accent); text-transform: uppercase; letter-spacing: 3px; font-size: 2.2rem; margin: 0 0 10px 0; cursor: pointer; transition: opacity 0.2s; }
         h1:hover { opacity: 0.8; }
-        
         .subtitle { color: var(--text-secondary); font-style: italic; font-size: 0.9rem; margin-bottom: 20px; }
         
         .nav-bar { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
@@ -41,6 +35,8 @@
         .cmd-btn:hover { background: rgba(212, 175, 55, 0.1); box-shadow: 0 0 10px rgba(212, 175, 55, 0.2); }
         .deck-btn { border-color: var(--legal); color: var(--legal); }
         .deck-btn:hover { background: rgba(76, 175, 80, 0.1); }
+        .check-btn { border-color: #2196f3; color: #2196f3; }
+        .check-btn:hover { background: rgba(33, 150, 243, 0.1); }
 
         /* SEARCH AREA */
         .search-wrapper { width: 100%; max-width: 700px; position: relative; z-index: 100; margin-bottom: 20px; }
@@ -61,45 +57,47 @@
             border-radius: 0 0 12px 12px; overflow: hidden; display: none;
             box-shadow: 0 10px 20px rgba(0,0,0,0.5); z-index: 2000;
         }
-        .suggestion-item {
-            padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #333;
-            color: #ccc; display: flex; justify-content: space-between;
-        }
+        .suggestion-item { padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #333; color: #ccc; display: flex; justify-content: space-between; }
         .suggestion-item:last-child { border-bottom: none; }
         .suggestion-item:hover { background: var(--accent); color: #000; font-weight: bold; }
 
         /* ADVANCED PANEL */
         .adv-toggle { text-align: right; margin-top: 10px; cursor: pointer; color: var(--accent); font-size: 0.9rem; text-decoration: underline; }
         .adv-panel { background: #252525; border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-top: 10px; display: none; }
-        
         .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .filter-group { display: flex; flex-direction: column; position: relative; }
         .filter-label { font-size: 0.7rem; color: #888; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
         .full-width { grid-column: 1 / -1; }
-
-        /* MANA ICONS */
         .color-row { display: flex; gap: 8px; flex-wrap: wrap; }
         .mana-check-input { display: none; }
         .mana-icon { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; opacity: 0.3; transition: all 0.2s; border: 2px solid transparent; padding: 2px; }
         .mana-icon:hover { opacity: 0.8; transform: scale(1.1); }
         .mana-check-input:checked + .mana-icon { opacity: 1; border-color: var(--accent); box-shadow: 0 0 10px var(--accent); transform: scale(1.1); }
 
+        /* VISUAL OVERLAYS */
+        .img-wrapper { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #222; }
+        .mini-card .img-wrapper { border-radius: 12px 12px 0 0; }
+        .stamp-overlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            display: flex; justify-content: center; align-items: center;
+            font-weight: 900; font-size: 2.2rem; transform: rotate(-15deg); pointer-events: none;
+            text-transform: uppercase; letter-spacing: 2px; z-index: 10; text-align: center; line-height: 1.1;
+        }
+        .stamp-illegal { color: var(--illegal); text-shadow: 2px 2px 4px rgba(0,0,0,0.8), -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000; }
+        .stamp-banned { color: var(--banned); text-shadow: 2px 2px 4px rgba(0,0,0,0.8), -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000; }
+        .mini-card .stamp-overlay { font-size: 1.2rem; }
+
         /* RESULTS AREA */
         .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; width: 100%; max-width: 1000px; margin-top: 40px; }
-        .mini-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform 0.2s; }
+        .mini-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column; }
         .mini-card:hover { transform: translateY(-5px); border-color: var(--accent); }
         .mini-img { width: 100%; height: auto; display: block; }
-        .mini-info { padding: 10px; text-align: center; }
+        .mini-info { padding: 10px; text-align: center; flex-grow: 1; }
         .mini-name { font-weight: bold; font-size: 0.85rem; display: block; }
         .mini-set { font-size: 0.7rem; color: #888; }
         
         /* CARD DISPLAY */
-        .card-display { 
-            background: var(--surface); border: 1px solid var(--border); border-radius: 16px; 
-            padding: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
-            display: none; max-width: 450px; width: 100%; margin-top: 20px;
-        }
-        .card-image-container { width: 100%; border-radius: 12px; overflow: hidden; margin-bottom: 20px; background: #222; min-height: 300px; position: relative; }
+        .card-display { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: none; max-width: 450px; width: 100%; margin-top: 20px; }
         .card-img { width: 100%; height: auto; display: block; }
         
         .status-badge { display: inline-block; padding: 8px 20px; border-radius: 50px; font-size: 1.2rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; }
@@ -116,7 +114,6 @@
         .action-btn:hover { background: var(--accent); color: black; border-color: var(--accent); }
         .add-btn { background: var(--legal); border-color: var(--legal); color: #000; }
         .add-btn:hover { background: #388e3c; color: white; }
-
         .reset-btn { margin-top: 15px; width: 100%; background: transparent; border: 1px solid #666; color: #888; }
         .reset-btn:hover { background: #333; color: white; }
 
@@ -126,27 +123,60 @@
 
         /* MODAL */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 5000; display: none; justify-content: center; align-items: center; }
-        .modal-content { background: var(--surface); padding: 30px; border-radius: 12px; max-width: 500px; width: 90%; border: 1px solid var(--accent); position: relative; max-height: 80vh; overflow-y: auto; }
-        .close-modal { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: #888; }
+        .modal-content { background: var(--surface); padding: 30px; border-radius: 12px; max-width: 800px; width: 90%; border: 1px solid var(--accent); position: relative; max-height: 85vh; overflow-y: auto; }
+        .close-modal { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: #888; z-index: 10; }
         .modal-content h2 { color: var(--accent); margin-top: 0; }
         .modal-content ul { padding-left: 20px; line-height: 1.6; color: #ccc; }
 
-        /* DECK LIST STYLES */
-        .deck-list { list-style: none; padding: 0; margin-top: 20px; }
-        .deck-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #333; align-items: center; }
+        /* DECK BUILDER ENHANCEMENTS */
+        .deck-view-toggles { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; }
+        .deck-stats { display: flex; flex-wrap: wrap; justify-content: space-around; align-items: flex-end; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border: 1px solid #444; margin-bottom: 20px; font-size: 0.9rem; }
+        .mana-curve { display: flex; gap: 8px; align-items: flex-end; height: 50px; }
+        .curve-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+        .curve-bar { width: 12px; background: var(--accent); border-radius: 3px 3px 0 0; transition: height 0.3s; min-height: 1px; }
+        .curve-label { font-size: 0.6rem; color: #888; margin-top: 4px; font-weight: bold; }
+        .deck-group-title { color: var(--accent); border-bottom: 1px solid #444; padding-bottom: 5px; margin: 20px 0 10px 0; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .deck-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; }
+        .deck-card-visual { position: relative; border-radius: 6px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; }
+        .deck-card-visual:hover { border-color: var(--accent); transform: translateY(-4px); }
+        .deck-card-visual img { width: 100%; display: block; border-radius: 4px; }
+        .qty-badge { position: absolute; top: -5px; left: -5px; background: var(--accent); color: #000; font-weight: 900; padding: 4px 8px; border-radius: 12px; font-size: 0.85rem; z-index: 5; box-shadow: 0 2px 5px rgba(0,0,0,0.8); border: 1px solid #000; }
+        .remove-visual { position: absolute; bottom: 5px; right: 5px; background: rgba(244, 67, 54, 0.9); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 1.3rem; z-index: 5; opacity: 0; transition: opacity 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.8); }
+        .deck-card-visual:hover .remove-visual { opacity: 1; }
+        .remove-visual:hover { background: #f44336; transform: scale(1.1); }
+        
+        .set-cmd-btn { cursor: pointer; opacity: 0.3; transition: opacity 0.2s; margin-right: 5px; font-size: 1.1rem; }
+        .set-cmd-btn:hover, .set-cmd-btn.active { opacity: 1; }
+        .cmd-tag { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.7); border-radius: 50%; padding: 4px; font-size: 1.2rem; z-index: 5; border: 1px solid #444; }
+        .cmd-tag:hover { background: rgba(255,255,255,0.2); }
+
+        .deck-list { list-style: none; padding: 0; margin-top: 10px; }
+        .deck-item { display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid #333; align-items: center; background: rgba(255,255,255,0.02); margin-bottom: 3px; border-radius: 4px; }
+        .deck-item:hover { background: rgba(255,255,255,0.05); }
         .deck-item span { color: #fff; }
         .remove-btn { color: #f44336; cursor: pointer; font-weight: bold; font-size: 1.2rem; padding: 0 10px; }
-        .deck-actions { display: flex; gap: 10px; margin-top: 20px; }
-        .copy-btn { flex: 1; background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .clear-btn { background: transparent; border: 1px solid #f44336; color: #f44336; padding: 12px; border-radius: 8px; cursor: pointer; }
+        
+        .deck-actions { display: flex; gap: 10px; margin-top: 30px; flex-wrap: wrap; justify-content: center; }
+        .copy-btn { flex: 1; min-width: 120px; background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .copy-btn:hover { background: #e5c158; }
+        .clear-btn { flex: 1; min-width: 120px; background: transparent; border: 1px solid #f44336; color: #f44336; padding: 12px; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
+        .clear-btn:hover { background: rgba(244, 67, 54, 0.1); }
+
+        .check-section { margin-top: 20px; border-top: 1px solid #444; padding-top: 20px; }
+        .check-group h3 { margin-bottom: 10px; font-size: 1.1rem; }
+        .check-group.banned h3 { color: var(--banned); }
+        .check-group.illegal h3 { color: var(--illegal); }
+        .check-group.missing h3 { color: #ff9800; }
+        .check-group.legal h3 { color: var(--legal); }
+        .check-ul { padding-left: 20px; margin-top: 0; color: #ccc; font-size: 0.9rem; }
 
         .footer { margin-top: 50px; color: #444; font-size: 0.8rem; text-align: center; }
         .footer a { color: #666; text-decoration: none; }
         .footer a:hover { color: var(--accent); }
 
     </style>
-    <script src="heritage_db.js"></script>
-    </head>
+</head>
 <body>
 
     <div class="header">
@@ -156,19 +186,19 @@
         <div class="nav-bar">
             <button class="nav-btn" onclick="openModal('rulesModal')">Rules</button>
             <button class="nav-btn deck-btn" onclick="openDeck()">Deck (<span id="deckCount">0</span>)</button>
-            <button class="nav-btn" onclick="randomCard()">Random 🎲</button>
-            <button class="nav-btn cmd-btn" onclick="randomCommander()">Commander 👑</button>
+            <button class="nav-btn check-btn" onclick="openModal('deckCheckModal')">Check My Deck</button>
+            <button class="nav-btn cmd-btn" onclick="randomCommander()">Random Commander 👑</button>
         </div>
     </div>
 
     <div id="rulesModal" class="modal-overlay" onclick="closeModal(event, 'rulesModal')">
         <div class="modal-content">
             <span class="close-modal" onclick="document.getElementById('rulesModal').style.display='none'">&times;</span>
-            <h2>Heritage EDH Protocol</h2>
+            <h2>Heritage Protocol</h2>
             <p>A card is legal if it was printed in a <strong>Standard-legal set</strong> (formerly Type 2) set within the Magic Multiverse.</p>
             <ul>
-                <li><strong>Allowed:</strong> All Standard sets (Alpha to present).</li>
-                <li><strong>Banned:</strong> Commander Precons, Modern Horizons, Supplemental Sets, and Universes Beyond.</li>
+                <li><strong>Allowed:</strong> All Standard sets (Alpha to present) AND any card released prior to June 17, 2011 (Vintage legal).</li>
+                <li><strong>Banned:</strong> Commander Precons, Modern Horizons, Supplemental Sets, and Universes Beyond (released after 2011).</li>
                 <li><strong>Ban List:</strong> Uses the official Commander Ban List.</li>
             </ul>
         </div>
@@ -177,20 +207,75 @@
     <div id="deckModal" class="modal-overlay" onclick="closeModal(event, 'deckModal')">
         <div class="modal-content">
             <span class="close-modal" onclick="document.getElementById('deckModal').style.display='none'">&times;</span>
-            <h2>Current Deck</h2>
-            <div id="deckListContainer" class="deck-list"></div>
+            <h2 style="text-align: center; margin-bottom: 20px;">Current Deck</h2>
+            
+            <div class="deck-view-toggles">
+                <button id="btnViewList" class="nav-btn" onclick="setDeckView('list')">List View</button>
+                <button id="btnViewVisual" class="nav-btn" onclick="setDeckView('visual')">Visual Grid</button>
+            </div>
+            
+            <div id="deckStatsContainer"></div>
+            <div id="deckListContainer"></div>
             
             <div class="deck-actions">
-                <button class="copy-btn" onclick="exportDeck()">📋 Copy List</button>
+                <button class="copy-btn" style="background:#2196f3; color:white;" onclick="openImportModal()">📥 Import</button>
+                <button class="copy-btn" onclick="openExportModal()">📤 Export / Share</button>
                 <button class="clear-btn" onclick="clearDeck()">Clear</button>
             </div>
-            <p style="font-size:0.8rem; color:#888; margin-top:10px; text-align:center;">Paste directly into Scryfall, Moxfield, or Archidekt.</p>
+        </div>
+    </div>
+
+    <div id="importModal" class="modal-overlay" onclick="closeModal(event, 'importModal')">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close-modal" onclick="document.getElementById('importModal').style.display='none'">&times;</span>
+            <h2>Import Deck</h2>
+            <p style="color:#aaa; font-size:0.9rem;">Paste an <strong>Archidekt URL</strong> or raw decklist text below to load it into the builder.</p>
+            <textarea id="importInput" style="width:100%; height:150px; background:#222; color:#fff; border:1px solid #444; padding:10px; border-radius:8px; font-family:monospace; resize:vertical;" placeholder="https://archidekt.com/decks/YOUR_DECK_ID&#10;...or paste text here!"></textarea>
+            
+            <label style="display:block; margin-top:15px; color:#ccc; cursor:pointer;">
+                <input type="checkbox" id="importReplace" checked> Replace current deck
+            </label>
+
+            <button id="importBtn" class="action-btn check-btn" style="width:100%; margin-top:15px; font-size:1rem; padding:12px;" onclick="processImport()">IMPORT DECK</button>
+        </div>
+    </div>
+
+    <div id="exportModal" class="modal-overlay" onclick="closeModal(event, 'exportModal')">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close-modal" onclick="document.getElementById('exportModal').style.display='none'">&times;</span>
+            <h2>Export & Share</h2>
+            <p style="color:#aaa; font-size:0.9rem; margin-bottom:20px;">Share your Heritage brew with the world, or export it to play online.</p>
+
+            <div class="filter-group full-width" style="margin-bottom: 30px;">
+                <span class="filter-label">Shareable Link</span>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="shareLinkInput" readonly style="background: rgba(0,0,0,0.3); color: #aaa; cursor: pointer;" onclick="this.select()">
+                    <button class="action-btn add-btn" onclick="copyShareLink()" style="border-radius: 8px; margin: 0; padding: 0 15px;">Copy</button>
+                </div>
+            </div>
+
+            <div class="deck-actions" style="margin-top: 0; flex-direction: column;">
+                <button class="copy-btn" style="background: #333; color: white;" onclick="downloadDeckFile()">💾 Download .txt File</button>
+                <button class="copy-btn" style="background: var(--legal); color: white;" onclick="exportDeck()">📋 Copy Raw Text</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="deckCheckModal" class="modal-overlay" onclick="closeModal(event, 'deckCheckModal')">
+        <div class="modal-content">
+            <span class="close-modal" onclick="document.getElementById('deckCheckModal').style.display='none'">&times;</span>
+            <h2>Check Deck Legality</h2>
+            <p style="color:#aaa; font-size:0.9rem;">Copy your decklist from your favorite builder (Moxfield, Archidekt, ManaBox, etc.) and paste the raw text below.</p>
+            <textarea id="deckCheckInput" style="width:100%; height:150px; background:#222; color:#fff; border:1px solid #444; padding:10px; border-radius:8px; font-family:monospace; resize:vertical;" placeholder="1 Sol Ring&#10;1 Arcane Signet&#10;1 Black Lotus"></textarea>
+            <button class="action-btn check-btn" style="width:100%; margin-top:15px; font-size:1rem; padding:12px;" onclick="processDeckCheck()">VERIFY DECK</button>
+            
+            <div id="deckCheckResults" class="check-section" style="display:none;"></div>
         </div>
     </div>
 
     <div class="search-wrapper">
         <div class="input-container">
-            <input type="text" id="mainSearch" placeholder="Search by Name (e.g. Sol Ring)..." autocomplete="off">
+            <input type="text" id="mainSearch" placeholder="Search by Name (e.g. Arcane Signet)..." autocomplete="off">
             <div id="mainSuggestions" class="suggestions-box"></div>
         </div>
         
@@ -198,23 +283,27 @@
         
         <div id="advPanel" class="adv-panel">
             <div class="filter-grid">
-                
                 <div class="filter-group full-width">
                     <span class="filter-label">Rules Text / Abilities</span>
                     <input type="text" id="rulesInput" placeholder="e.g. Destroy all creatures, Hexproof, Add {G}" autocomplete="off">
                 </div>
-
+                
                 <div class="filter-group">
                     <span class="filter-label">Card Type</span>
-                    <input type="text" id="typeInput" placeholder="e.g. Elf, Artifact" autocomplete="off">
-                    <div id="typeSuggestions" class="suggestions-box"></div>
-                </div>
-                <div class="filter-group">
-                    <span class="filter-label">Set Name</span>
-                    <input type="text" id="setInput" placeholder="e.g. Mirage" autocomplete="off">
-                    <div id="setSuggestions" class="suggestions-box"></div>
+                    <div class="input-container">
+                        <input type="text" id="typeInput" placeholder="e.g. Legendary Creature" autocomplete="off">
+                        <div id="typeSuggestions" class="suggestions-box"></div>
+                    </div>
                 </div>
                 
+                <div class="filter-group">
+                    <span class="filter-label">Set Name</span>
+                    <div class="input-container">
+                        <input type="text" id="setInput" placeholder="e.g. Mirage" autocomplete="off">
+                        <div id="setSuggestions" class="suggestions-box"></div>
+                    </div>
+                </div>
+
                 <div class="filter-group">
                     <span class="filter-label">Mana Value (CMC)</span>
                     <div style="display: flex; gap: 10px;">
@@ -222,7 +311,6 @@
                         <input type="number" id="cmcMax" placeholder="Max" style="width: 50%;">
                     </div>
                 </div>
-
                 <div class="filter-group">
                     <span class="filter-label">Sort By</span>
                     <select id="sortSelect">
@@ -232,7 +320,6 @@
                         <option value="date">Release Date (Old to New)</option>
                     </select>
                 </div>
-
                 <div class="filter-group full-width">
                     <span class="filter-label">Exact Colors / Type</span>
                     <div class="color-row">
@@ -246,16 +333,18 @@
                     </div>
                 </div>
             </div>
-            
             <button onclick="runAdvancedSearch()" style="width:100%; margin-top:15px; padding:10px; background:var(--accent); border:none; border-radius:5px; font-weight:bold; cursor:pointer;">SEARCH DATABASE</button>
             <button onclick="resetFilters()" class="action-btn reset-btn">Reset Filters</button>
         </div>
     </div>
 
     <div id="cardDisplay" class="card-display">
-        <div class="card-image-container"><img id="cardImg" class="card-img" src=""></div>
+        <div class="img-wrapper">
+            <img id="cardImg" class="card-img" src="">
+            <div id="cardOverlay" class="stamp-overlay" style="display:none;"></div>
+        </div>
         
-        <div class="action-row">
+        <div class="action-row" style="margin-top: 20px;">
             <button id="addDeckBtn" class="action-btn add-btn" onclick="addToDeck()">+ ADD TO DECK</button>
             <button id="flipBtn" class="action-btn" onclick="flipCard()" style="display:none;">↻ FLIP</button>
             <a id="scryfallBtn" class="action-btn" href="#" target="_blank">SCRYFALL ↗</a>
@@ -277,10 +366,11 @@
     </div>
 
     <div class="footer">
-        Database Version: 14.2 (Onyx Release v2)<br>
+        Database Version: 18.1 (The Importer Update)<br>
         Card data powered by <a href="https://scryfall.com" target="_blank">Scryfall</a>
     </div>
 
+    <script src="heritage_db.js"></script>
     <script>
         // DOM ELEMENTS
         const input = document.getElementById('mainSearch');
@@ -294,6 +384,8 @@
         const addDeckBtn = document.getElementById('addDeckBtn');
         const deckCountSpan = document.getElementById('deckCount');
         const deckListContainer = document.getElementById('deckListContainer');
+        const deckStatsContainer = document.getElementById('deckStatsContainer');
+        const cardOverlay = document.getElementById('cardOverlay');
 
         // ADVANCED INPUTS
         const rulesInput = document.getElementById('rulesInput');
@@ -309,7 +401,25 @@
         let allMatches = [];
         let displayedCount = 0;
         const BATCH_SIZE = 50;
+        
+        // DECK STATE
         let myDeck = JSON.parse(localStorage.getItem('heritageDeck')) || [];
+        let myCommander = localStorage.getItem('heritageCommander') || null;
+        let deckViewMode = 'visual';
+
+        // --- PRE-COMPUTE DICTIONARIES FOR AUTOCOMPLETE ---
+        let UNIQUE_SETS = [];
+        let UNIQUE_TYPES = [];
+
+        if (typeof HERITAGE_DB !== 'undefined') {
+            UNIQUE_SETS = [...new Set(HERITAGE_DB.map(c => c.s))].sort();
+            let typeSet = new Set();
+            HERITAGE_DB.forEach(c => {
+                const parts = c.t.split(/[\s—]+/).map(p => p.trim()).filter(p => p.length > 0);
+                parts.forEach(p => typeSet.add(p));
+            });
+            UNIQUE_TYPES = [...typeSet].sort();
+        }
 
         // --- INIT ---
         updateDeckCount();
@@ -318,6 +428,67 @@
             const params = new URLSearchParams(window.location.search);
             const cardParam = params.get('card');
             
+            // Legacy uncompressed deck support
+            const dParam = params.get('d');
+            const cParam = params.get('c');
+            
+            // New Compressed deck support
+            const compressedDeck = params.get('deck');
+            
+            if (compressedDeck) {
+                const loadCompressed = () => {
+                    try {
+                        const decompressed = LZString.decompressFromEncodedURIComponent(compressedDeck);
+                        const data = JSON.parse(decompressed);
+                        myDeck = data.d || [];
+                        myCommander = data.c || null;
+                        saveDeck();
+                        updateDeckCount();
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                        openDeck();
+                    } catch (e) {
+                        alert("Failed to load shared deck. The link may be broken.");
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    }
+                };
+
+                if (myDeck.length > 0) {
+                    if(confirm("Load shared deck? This will replace your current deck.")) loadCompressed();
+                    else window.history.replaceState({}, document.title, window.location.pathname);
+                } else {
+                    loadCompressed();
+                }
+            } 
+            else if (dParam) {
+                // Legacy uncompressed fallback
+                const loadShared = () => {
+                    let importedDeck = [];
+                    const pairs = dParam.split('|');
+                    pairs.forEach(p => {
+                        const match = p.match(/^(\d+)x(.*)$/);
+                        if(match) {
+                            const qty = parseInt(match[1]);
+                            const name = match[2];
+                            for(let i=0; i<qty; i++) importedDeck.push(name);
+                        }
+                    });
+                    myDeck = importedDeck;
+                    myCommander = cParam || null;
+                    saveDeck();
+                    updateDeckCount();
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    openDeck();
+                };
+
+                if (myDeck.length > 0) {
+                    if(confirm("Load shared deck? This will replace your current deck.")) loadShared();
+                    else window.history.replaceState({}, document.title, window.location.pathname);
+                } else {
+                    loadShared();
+                }
+            }
+
+            // Handle Single Card Link
             if (typeof HERITAGE_DB !== 'undefined' && cardParam) {
                 const decoded = decodeURIComponent(cardParam).toLowerCase();
                 const card = HERITAGE_DB.find(c => c.n.toLowerCase() === decoded);
@@ -334,9 +505,160 @@
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(e, id) { if(e.target === document.getElementById(id)) document.getElementById(id).style.display = 'none'; }
 
-        // --- DECK BUILDER LOGIC ---
+        // --- DECK CHECKER LOGIC ---
+        function processDeckCheck() {
+            const inputVal = document.getElementById('deckCheckInput').value.trim();
+            const container = document.getElementById('deckCheckResults');
+            if (!inputVal) return;
+            container.style.display = 'block';
+            
+            let deckItems = [];
+            const lines = inputVal.split('\n');
+            lines.forEach(line => {
+                let clean = line.trim();
+                if(!clean) return;
+                let qty = 1;
+                const qtyMatch = clean.match(/^([0-9]+)[xX\s]+/);
+                if (qtyMatch) { qty = parseInt(qtyMatch[1], 10); }
+                clean = clean.replace(/^[0-9xX\s]+/, '').trim();
+                clean = clean.replace(/\s\(.*$/, '').trim();
+                clean = clean.replace(/\s\*.*$/, '').trim();
+                if (clean) deckItems.push({ name: clean, qty: qty });
+            });
+
+            const results = { legal: [], legalCount: 0, banned: [], bannedCount: 0, illegal: [], illegalCount: 0, missing: [], missingCount: 0 };
+            deckItems.forEach(item => {
+                const clean = item.name;
+                const qty = item.qty;
+                const card = HERITAGE_DB.find(c => c.n.toLowerCase() === clean.toLowerCase() || c.n.toLowerCase().split(' //')[0] === clean.toLowerCase());
+                const displayStr = qty > 1 ? `${qty}x ${card ? card.n : clean}` : (card ? card.n : clean);
+
+                if (!card) { results.missing.push(displayStr); results.missingCount += qty; } 
+                else if (card.l === 'B') { results.banned.push(displayStr); results.bannedCount += qty; } 
+                else if (card.l === 'I') { results.illegal.push(displayStr); results.illegalCount += qty; } 
+                else { results.legal.push(displayStr); results.legalCount += qty; }
+            });
+
+            let html = '';
+            if (results.bannedCount > 0) { html += `<div class="check-group banned"><h3>⛔ Banned in Commander (${results.bannedCount})</h3><ul class="check-ul">`; results.banned.forEach(n => html += `<li>${n}</li>`); html += `</ul></div>`; }
+            if (results.illegalCount > 0) { html += `<div class="check-group illegal"><h3>❌ Heritage Banned (${results.illegalCount})</h3><ul class="check-ul">`; results.illegal.forEach(n => html += `<li>${n}</li>`); html += `</ul></div>`; }
+            if (results.missingCount > 0) { html += `<div class="check-group missing"><h3>⚠️ Not Found / Typo (${results.missingCount})</h3><ul class="check-ul">`; results.missing.forEach(n => html += `<li>${n}</li>`); html += `</ul></div>`; }
+            html += `<div class="check-group legal"><h3>✅ Heritage Legal (${results.legalCount})</h3></div>`;
+            if (results.bannedCount === 0 && results.illegalCount === 0 && results.missingCount === 0) { html = `<h3 style="color:var(--legal); text-align:center;">🎉 Deck is 100% Heritage Legal! 🎉</h3>`; }
+            container.innerHTML = html;
+        }
+
+        // --- IMPORT DECK LOGIC ---
+        function openImportModal() {
+            document.getElementById('deckModal').style.display = 'none'; 
+            openModal('importModal');
+        }
+
+        async function processImport() {
+            const inputVal = document.getElementById('importInput').value.trim();
+            const replaceDeck = document.getElementById('importReplace').checked;
+            const btn = document.getElementById('importBtn');
+            
+            if (!inputVal) return;
+            btn.innerText = "Importing...";
+            
+            let deckItems = [];
+
+            // Detect Archidekt URL
+            const archidektRegex = /archidekt\.com\/decks\/(\d+)/;
+            const match = inputVal.match(archidektRegex);
+
+            if (match) {
+                const deckId = match[1];
+                try {
+                    const response = await fetch(`https://archidekt.com/api/decks/${deckId}/`);
+                    if (!response.ok) throw new Error("Deck must be Public.");
+                    const data = await response.json();
+                    
+                    if (data.cards && Array.isArray(data.cards)) {
+                        data.cards.forEach(item => {
+                            const cardData = item.card;
+                            if (cardData) {
+                                const cardName = cardData.oracleCard?.name || cardData.oracle_card?.name || cardData.name || "";
+                                const qty = item.quantity || 1;
+                                if (cardName) deckItems.push({ name: cardName, qty: qty });
+                            }
+                        });
+                    }
+                } catch (error) {
+                    alert("Archidekt Fetch Error: " + error.message);
+                    btn.innerText = "IMPORT DECK";
+                    return;
+                }
+            } else {
+                // Parse Raw Text
+                const lines = inputVal.split('\n');
+                lines.forEach(line => {
+                    let clean = line.trim();
+                    if(!clean) return;
+                    
+                    let qty = 1;
+                    const qtyMatch = clean.match(/^([0-9]+)[xX\s]+/);
+                    if (qtyMatch) { qty = parseInt(qtyMatch[1], 10); }
+
+                    clean = clean.replace(/^[0-9xX\s]+/, '').trim();
+                    clean = clean.replace(/\s\(.*$/, '').trim();
+                    clean = clean.replace(/\s\*.*$/, '').trim();
+                    if (clean) deckItems.push({ name: clean, qty: qty });
+                });
+            }
+
+            if (replaceDeck) {
+                myDeck = [];
+                myCommander = null;
+            }
+
+            let addedCount = 0;
+            let skippedItems = [];
+
+            // Match and inject
+            deckItems.forEach(item => {
+                const clean = item.name;
+                const qty = item.qty;
+                const card = HERITAGE_DB.find(c => c.n.toLowerCase() === clean.toLowerCase() || c.n.toLowerCase().split(' //')[0] === clean.toLowerCase());
+                
+                if (card) {
+                    for(let i = 0; i < qty; i++) myDeck.push(card.n);
+                    addedCount += qty;
+                } else {
+                    skippedItems.push(clean);
+                }
+            });
+
+            saveDeck();
+            updateDeckCount();
+            
+            btn.innerText = "IMPORT DECK";
+            document.getElementById('importInput').value = '';
+            closeModal({target: document.getElementById('importModal')}, 'importModal');
+            
+            if (skippedItems.length > 0) {
+                alert(`Imported ${addedCount} cards.\nCould not find: \n${skippedItems.slice(0,5).join(', ')}${skippedItems.length > 5 ? '...' : ''}`);
+            }
+            
+            openDeck();
+        }
+
+        // --- ADVANCED DECK BUILDER LOGIC ---
+        function setDeckView(mode) {
+            deckViewMode = mode;
+            renderDeckList();
+        }
+
+        function setCommander(name) {
+            if (myCommander === name) myCommander = null; 
+            else myCommander = name;
+            localStorage.setItem('heritageCommander', myCommander || '');
+            renderDeckList();
+        }
+
         function addToDeck() {
-            if (!currentCard) return;
+            if (!currentCard || currentCard.l !== 'L') return;
             myDeck.push(currentCard.n);
             saveDeck();
             updateDeckCount();
@@ -357,22 +679,24 @@
             renderDeckList(); 
         }
 
+        window.removeByName = function(name) {
+            const index = myDeck.indexOf(name);
+            if (index > -1) removeFromDeck(index);
+        }
+
         function clearDeck() {
             if(confirm("Clear your entire deck?")) {
                 myDeck = [];
+                myCommander = null;
+                localStorage.setItem('heritageCommander', '');
                 saveDeck();
                 updateDeckCount();
                 renderDeckList();
             }
         }
 
-        function saveDeck() {
-            localStorage.setItem('heritageDeck', JSON.stringify(myDeck));
-        }
-
-        function updateDeckCount() {
-            deckCountSpan.innerText = myDeck.length;
-        }
+        function saveDeck() { localStorage.setItem('heritageDeck', JSON.stringify(myDeck)); }
+        function updateDeckCount() { deckCountSpan.innerText = myDeck.length; }
 
         function openDeck() {
             renderDeckList();
@@ -380,66 +704,289 @@
         }
 
         function renderDeckList() {
-            deckListContainer.innerHTML = '';
             if (myDeck.length === 0) {
-                deckListContainer.innerHTML = '<p style="text-align:center; color:#666;">Deck is empty.</p>';
+                deckListContainer.innerHTML = '<p style="text-align:center; color:#666; margin-top:40px;">Deck is empty.</p>';
+                deckStatsContainer.innerHTML = '';
+                document.getElementById('btnViewList').style.borderColor = deckViewMode === 'list' ? 'var(--accent)' : '#444';
+                document.getElementById('btnViewList').style.color = deckViewMode === 'list' ? 'var(--accent)' : 'var(--text-secondary)';
+                document.getElementById('btnViewVisual').style.borderColor = deckViewMode === 'visual' ? 'var(--accent)' : '#444';
+                document.getElementById('btnViewVisual').style.color = deckViewMode === 'visual' ? 'var(--accent)' : 'var(--text-secondary)';
+                return;
+            }
+
+            const counts = {};
+            myDeck.forEach(name => { counts[name] = (counts[name] || 0) + 1; });
+
+            const groups = { "Commander": [], "Creatures": [], "Planeswalkers": [], "Spells": [], "Artifacts": [], "Enchantments": [], "Lands": [], "Other": [] };
+            
+            let curve = { 0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0 }; 
+            let totalCards = myDeck.length;
+            let totalLands = 0;
+            let maxCurve = 0;
+
+            Object.keys(counts).forEach(name => {
+                const qty = counts[name];
+                const card = HERITAGE_DB.find(c => c.n === name) || { n: name, t: "", i: "", v: 0 };
+                
+                let typeLine = (card.t || "").toLowerCase();
+                let groupName = "Other";
+                
+                if (name === myCommander) {
+                    groupName = "Commander";
+                } else if (typeLine.includes("land")) {
+                    groupName = "Lands";
+                    totalLands += qty;
+                } else if (typeLine.includes("creature")) {
+                    groupName = "Creatures";
+                } else if (typeLine.includes("planeswalker")) {
+                    groupName = "Planeswalkers";
+                } else if (typeLine.includes("instant") || typeLine.includes("sorcery")) {
+                    groupName = "Spells";
+                } else if (typeLine.includes("artifact")) {
+                    groupName = "Artifacts";
+                } else if (typeLine.includes("enchantment")) {
+                    groupName = "Enchantments";
+                }
+
+                groups[groupName].push({ name, qty, card });
+
+                if (!typeLine.includes("land") && name !== myCommander) {
+                    let cmc = Math.floor(card.v || 0);
+                    if (cmc > 6) cmc = 6;
+                    curve[cmc] += qty;
+                    if (curve[cmc] > maxCurve) maxCurve = curve[cmc];
+                }
+            });
+
+            let curveHtml = `<div class="mana-curve">`;
+            for(let i=0; i<=6; i++) {
+                let height = maxCurve > 0 ? (curve[i] / maxCurve) * 40 : 0;
+                let label = i === 6 ? "6+" : i;
+                curveHtml += `
+                    <div class="curve-col" title="CMC ${label}: ${curve[i]} cards">
+                        <div class="curve-bar" style="height: ${height}px;"></div>
+                        <div class="curve-label">${label}</div>
+                    </div>`;
+            }
+            curveHtml += `</div>`;
+
+            deckStatsContainer.innerHTML = `
+                <div class="deck-stats">
+                    <div><span style="color:#888;">Cards:</span> <strong style="font-size:1.2em; color:#fff;">${totalCards}</strong></div>
+                    <div><span style="color:#888;">Non-Lands:</span> <strong style="color:#fff;">${totalCards - totalLands}</strong></div>
+                    <div><span style="color:#888;">Lands:</span> <strong style="color:#fff;">${totalLands}</strong></div>
+                    ${curveHtml}
+                </div>
+            `;
+
+            let html = '';
+            const groupOrder = ["Commander", "Creatures", "Planeswalkers", "Spells", "Artifacts", "Enchantments", "Lands", "Other"];
+            
+            groupOrder.forEach(g => {
+                const items = groups[g];
+                if (items.length === 0) return;
+
+                const groupCount = items.reduce((sum, item) => sum + item.qty, 0);
+                html += `<div class="deck-group-title">${g} (${groupCount})</div>`;
+                
+                items.sort((a,b) => a.name.localeCompare(b.name));
+
+                if (deckViewMode === 'visual') {
+                    html += `<div class="deck-grid">`;
+                    items.forEach(item => {
+                        const img = item.card.i || 'https://cards.scryfall.io/normal/front/1/2/12121212-1212-1212-1212-121212121212.jpg';
+                        const safeName = item.name.replace(/'/g, "\\'");
+                        const isLegendary = (item.card.t || "").toLowerCase().includes("legendary creature") || (item.card.t || "").toLowerCase().includes("legendary planeswalker");
+                        
+                        let cmdBtn = '';
+                        if (g === "Commander") {
+                            cmdBtn = `<div class="cmd-tag" onclick="setCommander('${safeName}')" title="Remove Commander">❌</div>`;
+                        } else if (isLegendary) {
+                            cmdBtn = `<div class="cmd-tag" onclick="setCommander('${safeName}')" title="Set as Commander">👑</div>`;
+                        }
+
+                        // Inject illegal/banned visual stamps
+                        let overlayHtml = '';
+                        if(item.card.l === 'B') overlayHtml = `<div class="stamp-overlay"><span class="stamp-banned" style="font-size:0.8rem; padding:4px;">BANNED</span></div>`;
+                        if(item.card.l === 'I') overlayHtml = `<div class="stamp-overlay"><span class="stamp-illegal" style="font-size:0.8rem; padding:4px;">ILLEGAL</span></div>`;
+
+                        html += `
+                            <div class="deck-card-visual">
+                                ${overlayHtml}
+                                ${cmdBtn}
+                                <div class="qty-badge">${item.qty}x</div>
+                                <img src="${img}" title="${item.name}">
+                                <div class="remove-visual" onclick="removeByName('${safeName}')">&times;</div>
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                } else {
+                    html += `<ul class="deck-list">`;
+                    items.forEach(item => {
+                        const safeName = item.name.replace(/'/g, "\\'");
+                        const isLegendary = (item.card.t || "").toLowerCase().includes("legendary creature") || (item.card.t || "").toLowerCase().includes("legendary planeswalker");
+                        const cmdAction = isLegendary ? `<span class="set-cmd-btn ${g === 'Commander' ? 'active' : ''}" onclick="setCommander('${safeName}')" title="Toggle Commander">👑</span>` : '';
+                        
+                        // Inject list view illegal flags
+                        let flag = "";
+                        if (item.card.l === 'B') flag = '<span style="color:var(--banned); font-size:0.8em; font-weight:bold; margin-left:8px;">[BANNED]</span>';
+                        if (item.card.l === 'I') flag = '<span style="color:var(--illegal); font-size:0.8em; font-weight:bold; margin-left:8px;">[ILLEGAL]</span>';
+
+                        html += `
+                            <li class="deck-item">
+                                <span>${cmdAction} ${item.qty}x ${item.name} ${flag}</span>
+                                <span class="remove-btn" onclick="removeByName('${safeName}')">&times;</span>
+                            </li>
+                        `;
+                    });
+                    html += `</ul>`;
+                }
+            });
+
+            deckListContainer.innerHTML = html;
+
+            document.getElementById('btnViewList').style.borderColor = deckViewMode === 'list' ? 'var(--accent)' : '#444';
+            document.getElementById('btnViewList').style.color = deckViewMode === 'list' ? 'var(--accent)' : 'var(--text-secondary)';
+            document.getElementById('btnViewVisual').style.borderColor = deckViewMode === 'visual' ? 'var(--accent)' : '#444';
+            document.getElementById('btnViewVisual').style.color = deckViewMode === 'visual' ? 'var(--accent)' : 'var(--text-secondary)';
+        }
+
+        // --- EXPORT & SHARE LOGIC ---
+        function openExportModal() {
+            if (myDeck.length === 0) {
+                alert("Your deck is empty!");
                 return;
             }
             
-            const counts = {};
-            myDeck.forEach(name => { counts[name] = (counts[name] || 0) + 1; });
+            const deckData = { c: myCommander, d: myDeck };
+            const compressedStr = LZString.compressToEncodedURIComponent(JSON.stringify(deckData));
             
-            const sortedNames = Object.keys(counts).sort();
+            let baseUrl = window.location.href.split('?')[0];
+            const shareUrl = baseUrl + '?deck=' + compressedStr;
+            
+            document.getElementById('shareLinkInput').value = shareUrl;
+            
+            document.getElementById('deckModal').style.display = 'none'; 
+            openModal('exportModal'); 
+        }
 
-            sortedNames.forEach(name => {
-                const item = document.createElement('div');
-                item.className = 'deck-item';
-                item.innerHTML = `
-                    <span>${counts[name]}x ${name}</span>
-                    <span class="remove-btn" onclick="removeByName('${name}')">&times;</span>
-                `;
-                deckListContainer.appendChild(item);
+        function copyShareLink() {
+            const input = document.getElementById('shareLinkInput');
+            input.select();
+            navigator.clipboard.writeText(input.value).then(() => {
+                alert("Share link copied to clipboard!");
             });
         }
 
-        window.removeByName = function(name) {
-            const index = myDeck.indexOf(name);
-            if (index > -1) {
-                removeFromDeck(index);
-            }
+        function downloadDeckFile() {
+            const counts = {};
+            myDeck.forEach(name => { counts[name] = (counts[name] || 0) + 1; });
+            let text = "";
+            
+            if (myCommander) { text += `1 ${myCommander}\n`; }
+            Object.keys(counts).sort().forEach(name => { 
+                if (name !== myCommander) {
+                    text += `${counts[name]} ${name}\n`; 
+                }
+            });
+            
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Heritage_Deck.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
 
         function exportDeck() {
             const counts = {};
             myDeck.forEach(name => { counts[name] = (counts[name] || 0) + 1; });
-            
             let text = "";
-            Object.keys(counts).sort().forEach(name => {
-                text += `${counts[name]} ${name}\n`;
+            if (myCommander) { text += `1 ${myCommander}\n`; }
+            Object.keys(counts).sort().forEach(name => { 
+                if (name !== myCommander) { text += `${counts[name]} ${name}\n`; }
             });
-            
-            navigator.clipboard.writeText(text).then(() => {
-                alert("Deck list copied to clipboard!");
+            navigator.clipboard.writeText(text).then(() => { alert("Deck list copied to clipboard!"); });
+        }
+
+
+        // --- AUTOCOMPLETE FOR ADVANCED SEARCH ---
+        function attachTypePredictive(inputElem, suggestionElem, sourceArray) {
+            inputElem.addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                const words = query.split(' ');
+                const currentWord = words[words.length - 1];
+                if (currentWord.length < 1) { suggestionElem.style.display = 'none'; return; }
+                const matches = sourceArray.filter(item => item.toLowerCase().startsWith(currentWord)).slice(0, 5);
+                if (matches.length > 0) {
+                    suggestionElem.innerHTML = '';
+                    matches.forEach(match => {
+                        const div = document.createElement('div');
+                        div.className = 'suggestion-item';
+                        div.innerText = match;
+                        div.onclick = function() {
+                            words[words.length - 1] = match;
+                            inputElem.value = words.join(' ') + ' '; 
+                            suggestionElem.style.display = 'none';
+                            inputElem.focus();
+                        };
+                        suggestionElem.appendChild(div);
+                    });
+                    suggestionElem.style.display = 'block';
+                } else { suggestionElem.style.display = 'none'; }
+            });
+            document.addEventListener('click', function(e) {
+                if (e.target !== inputElem && e.target !== suggestionElem) { suggestionElem.style.display = 'none'; }
             });
         }
 
-        // --- SEARCH LOGIC ---
+        function attachSetPredictive(inputElem, suggestionElem, sourceArray) {
+            inputElem.addEventListener('input', function() {
+                const query = this.value.trim().toLowerCase();
+                if (query.length < 2) { suggestionElem.style.display = 'none'; return; }
+                const matches = sourceArray.filter(item => item.toLowerCase().includes(query)).slice(0, 5);
+                if (matches.length > 0) {
+                    suggestionElem.innerHTML = '';
+                    matches.forEach(match => {
+                        const div = document.createElement('div');
+                        div.className = 'suggestion-item';
+                        div.innerText = match;
+                        div.onclick = function() {
+                            inputElem.value = match;
+                            suggestionElem.style.display = 'none';
+                        };
+                        suggestionElem.appendChild(div);
+                    });
+                    suggestionElem.style.display = 'block';
+                } else { suggestionElem.style.display = 'none'; }
+            });
+            document.addEventListener('click', function(e) {
+                if (e.target !== inputElem && e.target !== suggestionElem) { suggestionElem.style.display = 'none'; }
+            });
+        }
+
+        attachTypePredictive(typeInput, typeSuggestions, UNIQUE_TYPES);
+        attachSetPredictive(setInput, setSuggestions, UNIQUE_SETS);
+
+        // --- MAIN SEARCH LOGIC ---
         function randomCard() {
             resetView();
             if (typeof HERITAGE_DB === 'undefined') return;
             const r = Math.floor(Math.random() * HERITAGE_DB.length);
-            const card = HERITAGE_DB[r];
-            loadFromSelection(card);
+            loadFromSelection(HERITAGE_DB[r]);
         }
 
         function randomCommander() {
             resetView();
             if (typeof HERITAGE_DB === 'undefined') return;
-            const commanders = HERITAGE_DB.filter(c => c.t.includes("Legendary") && c.t.includes("Creature") && !c.b);
+            const commanders = HERITAGE_DB.filter(c => c.t.includes("Legendary") && c.t.includes("Creature") && c.l === 'L');
             if (commanders.length > 0) {
                 const r = Math.floor(Math.random() * commanders.length);
-                const card = commanders[r];
-                loadFromSelection(card);
+                loadFromSelection(commanders[r]);
             }
         }
 
@@ -456,61 +1003,6 @@
             const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?card=' + encodeURIComponent(card.n);
             window.history.pushState({path:newUrl},'',newUrl);
         }
-
-        function attachPredictive(inputElem, suggestionElem, dataKey) {
-            inputElem.addEventListener('input', function() {
-                const query = this.value.trim().toLowerCase();
-                if (query.length < 2) { suggestionElem.style.display = 'none'; return; }
-                if (typeof HERITAGE_DB === 'undefined') return;
-
-                let matches = [];
-                let seen = new Set();
-                
-                for (const card of HERITAGE_DB) {
-                    if (dataKey === 't') { 
-                        const words = card.t.split(' ');
-                        for (const w of words) {
-                            if (w.toLowerCase().startsWith(query) && !seen.has(w)) {
-                                matches.push(w);
-                                seen.add(w);
-                            }
-                        }
-                    } else if (dataKey === 's') { 
-                         if (card.s.toLowerCase().startsWith(query) && !seen.has(card.s)) {
-                            matches.push(card.s);
-                            seen.add(card.s);
-                         }
-                    }
-                    if (matches.length >= 5) break;
-                }
-
-                if (matches.length > 0) {
-                    suggestionElem.innerHTML = '';
-                    matches.forEach(match => {
-                        const div = document.createElement('div');
-                        div.className = 'suggestion-item';
-                        div.innerText = match;
-                        div.onclick = function() {
-                            inputElem.value = match;
-                            suggestionElem.style.display = 'none';
-                        };
-                        suggestionElem.appendChild(div);
-                    });
-                    suggestionElem.style.display = 'block';
-                } else {
-                    suggestionElem.style.display = 'none';
-                }
-            });
-
-            document.addEventListener('click', function(e) {
-                if (e.target !== inputElem && e.target !== suggestionElem) {
-                    suggestionElem.style.display = 'none';
-                }
-            });
-        }
-
-        attachPredictive(typeInput, typeSuggestions, 't');
-        attachPredictive(setInput, setSuggestions, 's');
 
         input.addEventListener('input', function() {
             advResults.innerHTML = ''; 
@@ -531,10 +1023,12 @@
                 matches.forEach(card => {
                     const div = document.createElement('div');
                     div.className = 'suggestion-item';
-                    div.innerHTML = `<span>${card.n}</span> <span style="font-size:0.8em; opacity:0.5">${card.s}</span>`;
-                    div.onclick = function() { 
-                        loadFromSelection(card);
-                    };
+                    let flag = "";
+                    if(card.l === 'B') flag = ' <span style="color:var(--banned); font-size:0.8em; font-weight:bold;">[BANNED]</span>';
+                    if(card.l === 'I') flag = ' <span style="color:var(--illegal); font-size:0.8em; font-weight:bold;">[HERITAGE BANNED]</span>';
+                    
+                    div.innerHTML = `<span>${card.n}${flag}</span> <span style="font-size:0.8em; opacity:0.5">${card.s}</span>`;
+                    div.onclick = function() { loadFromSelection(card); };
                     mainSuggestions.appendChild(div);
                 });
                 mainSuggestions.style.display = 'block';
@@ -545,7 +1039,7 @@
             }
             const exactCard = HERITAGE_DB.find(c => c.n.toLowerCase() === query);
             if (exactCard) {
-                renderSingleCard(exactCard, true);
+                renderSingleCard(exactCard);
                 display.style.display = 'block';
             }
         });
@@ -554,10 +1048,10 @@
             mainSuggestions.style.display = 'none';
             input.style.borderRadius = "8px";
             display.style.display = 'block';
-            renderSingleCard(card, true);
+            renderSingleCard(card);
         }
 
-        function renderSingleCard(card, isLegal) {
+        function renderSingleCard(card) {
             currentCard = card;
             isFlipped = false; 
             
@@ -573,47 +1067,44 @@
             flipBtn.innerText = "↻ FLIP"; 
             scryfallBtn.href = `https://scryfall.com/search?q=!"${encodeURIComponent(card.n)}"`;
 
-            if (isLegal) {
-                uiImg.src = card.i;
-                const setIconUrl = `https://svgs.scryfall.io/sets/${card.sc}.svg`;
-                uiSet.innerHTML = `Heritage Source: <img src="${setIconUrl}" class="set-icon"> ${card.s}`;
-                uiType.innerText = card.t; 
-                uiOracle.innerText = card.o || "";
-                uiOracle.style.display = card.o ? "block" : "none";
+            uiImg.src = card.i;
+            const setIconUrl = `https://svgs.scryfall.io/sets/${card.sc}.svg`;
+            uiSet.innerHTML = `Printed In: <img src="${setIconUrl}" class="set-icon"> ${card.s}`;
+            uiType.innerText = card.t; 
+            uiOracle.innerText = card.o || "";
+            uiOracle.style.display = card.o ? "block" : "none";
 
-                if (card.b) {
-                    uiBadge.innerText = "BANNED";
-                    uiBadge.className = "status-badge banned";
-                    uiMsg.innerText = "Legal in Heritage sets, but Banned in Commander.";
-                    document.getElementById('cardDisplay').style.borderColor = "#b71c1c";
-                    addDeckBtn.style.display = "none";
-                } else {
-                    uiBadge.innerText = "LEGAL";
-                    uiBadge.className = "status-badge legal";
-                    uiMsg.innerText = "Authorized for Heritage Play.";
-                    document.getElementById('cardDisplay').style.borderColor = "var(--legal)";
-                    addDeckBtn.style.display = "inline-block";
-                }
+            cardOverlay.style.display = "none";
+            cardOverlay.className = "stamp-overlay";
 
-                if (card.bi) {
-                    flipBtn.style.display = "inline-block";
-                } else {
-                    flipBtn.style.display = "none";
-                }
-
-            } else {
-                uiImg.src = ""; 
-                uiBadge.innerText = "ILLEGAL";
-                uiBadge.className = "status-badge illegal";
-                uiSet.innerText = "Not found in Heritage-legal sets";
-                uiType.innerText = "";
-                uiOracle.innerText = "";
-                uiOracle.style.display = "none";
-                flipBtn.style.display = "none";
+            if (card.l === 'L') {
+                uiBadge.innerText = "LEGAL";
+                uiBadge.className = "status-badge legal";
+                uiMsg.innerText = "Authorized for Heritage Play.";
+                document.getElementById('cardDisplay').style.borderColor = "var(--legal)";
+                addDeckBtn.style.display = "inline-block";
+            } else if (card.l === 'B') {
+                uiBadge.innerText = "BANNED";
+                uiBadge.className = "status-badge banned";
+                uiMsg.innerText = "Printed in a Heritage set, but Banned in Commander.";
+                document.getElementById('cardDisplay').style.borderColor = "var(--banned)";
                 addDeckBtn.style.display = "none";
+                
+                cardOverlay.innerHTML = "<span class='stamp-banned'>BANNED</span>";
+                cardOverlay.style.display = "flex";
+            } else if (card.l === 'I') {
+                uiBadge.innerText = "HERITAGE BANNED";
+                uiBadge.className = "status-badge illegal";
                 uiMsg.innerText = "This card was never printed in a Standard-legal set.";
                 document.getElementById('cardDisplay').style.borderColor = "var(--illegal)";
+                addDeckBtn.style.display = "none";
+                
+                cardOverlay.innerHTML = "<span class='stamp-illegal'>HERITAGE BANNED</span>";
+                cardOverlay.style.display = "flex";
             }
+
+            if (card.bi) { flipBtn.style.display = "inline-block"; } 
+            else { flipBtn.style.display = "none"; }
         }
 
         function flipCard() {
@@ -664,7 +1155,6 @@
             const isLandChecked = checkedValues.includes("LAND");
             const isColorlessChecked = checkedValues.includes("C");
             const selectedColors = checkedValues.filter(v => v !== "LAND" && v !== "C");
-            
             const sortMode = document.getElementById('sortSelect').value;
 
             allMatches = HERITAGE_DB.filter(c => {
@@ -673,16 +1163,13 @@
                     const backText = c.bo ? c.bo.toLowerCase() : "";
                     if (!frontText.includes(rulesQ) && !backText.includes(rulesQ)) return false;
                 }
-                
                 if (typeTokens.length > 0) {
                     const cardTypeLower = c.t.toLowerCase();
                     if (!typeTokens.every(token => cardTypeLower.includes(token))) return false;
                 }
-                
                 if (isLandChecked && !c.t.toLowerCase().includes("land")) return false;
                 if (setQ && !c.s.toLowerCase().includes(setQ)) return false;
                 if (c.v < minCMC || c.v > maxCMC) return false;
-                
                 if (isColorlessChecked) {
                     if (c.c.length !== 0) return false;
                 } else if (selectedColors.length > 0) {
@@ -692,15 +1179,10 @@
                 return true;
             });
 
-            if (sortMode === 'name') {
-                allMatches.sort((a, b) => a.n.localeCompare(b.n));
-            } else if (sortMode === 'cmc-asc') {
-                allMatches.sort((a, b) => a.v - b.v);
-            } else if (sortMode === 'cmc-desc') {
-                allMatches.sort((a, b) => b.v - a.v);
-            } else if (sortMode === 'date') {
-                allMatches.sort((a, b) => a.d.localeCompare(b.d));
-            }
+            if (sortMode === 'name') allMatches.sort((a, b) => a.n.localeCompare(b.n));
+            else if (sortMode === 'cmc-asc') allMatches.sort((a, b) => a.v - b.v);
+            else if (sortMode === 'cmc-desc') allMatches.sort((a, b) => b.v - a.v);
+            else if (sortMode === 'date') allMatches.sort((a, b) => a.d.localeCompare(b.d));
 
             advResults.innerHTML = '';
             displayedCount = 0;
@@ -717,8 +1199,16 @@
             nextBatch.forEach(card => {
                 const div = document.createElement('div');
                 div.className = 'mini-card';
+                
+                let overlayHtml = '';
+                if(card.l === 'B') overlayHtml = `<div class="stamp-overlay"><span class="stamp-banned">BANNED</span></div>`;
+                if(card.l === 'I') overlayHtml = `<div class="stamp-overlay"><span class="stamp-illegal">HERITAGE<br>BANNED</span></div>`;
+
                 div.innerHTML = `
-                    <img class="mini-img" src="${card.i}">
+                    <div class="img-wrapper">
+                        <img class="mini-img" src="${card.i}">
+                        ${overlayHtml}
+                    </div>
                     <div class="mini-info">
                         <span class="mini-name">${card.n}</span>
                         <span class="mini-set">${card.s}</span>
@@ -732,11 +1222,8 @@
             });
             displayedCount += nextBatch.length;
             statusText.innerText = `Showing ${displayedCount} of ${allMatches.length} matches.`;
-            if (displayedCount < allMatches.length) {
-                loadMoreBtn.style.display = 'block';
-            } else {
-                loadMoreBtn.style.display = 'none';
-            }
+            if (displayedCount < allMatches.length) loadMoreBtn.style.display = 'block';
+            else loadMoreBtn.style.display = 'none';
         }
     </script>
 </body>
